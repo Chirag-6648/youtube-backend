@@ -41,7 +41,6 @@ steps :
   optionsSuccessStatus: 200,
   })
   );
-
 - also remember to add use
   app.useI(express.json())
 - this is used for read JSON data which is sent by client
@@ -57,7 +56,7 @@ steps :
 
 asyncHandle.js
 
-# Create a APIError handler that returns error in the proper structure
+# Create a API Error handler that returns error in the proper structure
 
 - it extends the class of javascript Error and overwrites it
 - the proper structure of error
@@ -74,3 +73,65 @@ asyncHandle.js
   - data
   - message
   - success
+
+# Create Model for User and Video
+
+- creating a modal with fields like
+  username
+  email
+  password
+  fullName
+  avatar
+  coverlmage
+  watchHistory
+  refreshToken
+  createdAt
+  updatedAt
+
+- if you want to create any feild searchable in the data base than remembeer to add index in the model creattion it just makes searching optimized
+
+- Added some methods in the user model and video model to generate the access token refresh toeken
+  bcrypt the password, compare the passsword
+
+- for password Hash
+  userSchema.pre("save", async function (next) {
+  if (!this.isModified(password)) return next();
+  this.password = bcrypt.hash(this.password, 10);
+  next();
+  });
+
+- for password compare
+  userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+  };
+
+- for generate access token
+  userSchema.generateAccessToken = async function () {
+  jwt.sign(
+  {
+  _id: this._id,
+  email: this.email,
+  username: this.username,
+  fullname: this.fullname,
+  },
+  process.env.ACCESS_TOKEN_SECRET,
+  {
+  expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+  }
+  );
+  };
+
+- for generate refresh token  
+  userSchema.generateRefreshToken = async function () {
+  jwt.sign(
+  {
+  _id: this._id,
+  },
+  process.env.REFRESH_TOKEN_SECRET,
+  {
+  expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+  }
+  );
+  };
+
+- in video model added hook for hook for aggregation
