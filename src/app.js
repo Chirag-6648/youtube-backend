@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { useLayoutEffect } from "react";
+import { API_PREFIX, API_VERSION } from "./constants.js";
 
 app.use(
   cors({
@@ -19,5 +19,13 @@ app.use(
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser({}));
+
+// Import routes
+
+import UserRouter from "./Routes/user.routes.js";
+
+// Routes Declaration
+
+app.use(`/${API_PREFIX}/${API_VERSION}/user`, UserRouter);
 
 export { app };

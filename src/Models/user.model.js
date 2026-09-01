@@ -69,6 +69,7 @@ userSchema.generateAccessToken = async function () {
     }
   );
 };
+
 userSchema.generateRefreshToken = async function () {
   jwt.sign(
     {

@@ -135,3 +135,107 @@ asyncHandle.js
   };
 
 - in video model added hook for hook for aggregation
+
+# File Uploading
+
+- in this porject we are using cloudinary for image upload
+- first User will uplaod file using multer, cloudinary is just used to upload the file on the cloud
+
+- first we will do the Cloudinary setup
+
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+
+cloudinary.config({
+cloud_name: process.env.CLOUD_NAME,
+api_key: process.env.API_KEY,
+api_secret: process.env.API_SECRET,
+});
+
+const uplaodOnCloudinary = async (localFilePath) => {
+try {
+if (!localFilePath) return null;
+// Upload the file on Cloudinary
+const response = cloudinary.uploader.upload(localFilePath, {
+resource_type: "auto",
+});
+// file has been uploaded successfully
+console.log("File Is Uplaoded on Cloudinary", (await response).url);
+return response;
+} catch (error) {
+console.log("Error while uplaoding file", error);
+fs.unlinkSync(localFilePath); // removes the locally saved temp file as the upload operation got failed
+return null;
+}
+};
+
+export { uplaodOnCloudinary };
+
+- then Multer setup
+
+import multer from "multer";
+
+const crypto = require("crypto");
+
+const storage = multer.diskStorage({
+destination: function (req, file, cb) {
+cb(null, "./public/temp");
+},
+filename: function (req, file, cb) {
+crypto.randomUUID((err, raw) => {
+if (err) return cb(err);
+cb(null, `${file.originalname}-${raw}`);
+});
+},
+});
+
+export const upload = multer({ storage });
+
+# HTTP && HTTPS
+
+- mostly both are same just diffrence is the data is passing is encrypted in the https and in the https its clear text
+- http stand for hyper text transfer protocol
+- what is http headers ?
+  meta data => key value which is sent with the request and response
+- caching, authentication, manage state
+  x-prefix ->2012 (x-deprecated)
+
+  - request header -> from client
+  - response header -> from server
+  - representation headers -> encoding / compression
+  - payload headers -> data
+
+Most Common headers
+
+- Accept : application / json
+- User - Agent
+- Authorization
+- content-type
+- cookie
+- cache-control
+
+Cors
+
+- Access-Control-Allow-origin
+- Access-Control-Allow-Credential
+- Access-Control-Allow-Method
+
+Security
+
+- Cross-Origin-Embedder-Policy
+- Corss-Orgin-Opener-Policy
+- Context-Security-Policy
+- X-Xss-Protection
+
+# HTTP Methods
+
+- Basic Set of the operation which is used to interact with server
+
+- Get -> Retrieve a Response
+- Head -> No message Body (Response Header only)
+- Options -> what operation are availble
+- Trace -> Loopback test (get same data)
+- Delete -> to remove a resource
+- Put -> replace a resource
+- Post -> interact with resource (mostly to add)
+- Patch -> to change past of resource
